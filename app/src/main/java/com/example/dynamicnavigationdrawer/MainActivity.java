@@ -1,27 +1,22 @@
 package com.example.dynamicnavigationdrawer;
 
 import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.example.dynamicnavigationdrawer.ui.home.HomeFragment;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.navigation.NavigationView;
-
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import com.example.dynamicnavigationdrawer.ui.gallery.LocationsFragment;
+import com.example.dynamicnavigationdrawer.ui.home.HomeFragment;
+import com.example.dynamicnavigationdrawer.ui.slideshow.SettingsFragment;
+import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity {
-
-    private AppBarConfiguration mAppBarConfiguration;
     DrawerLayout drawer;
     NavigationView navigationView;
     MenuItem menuItem;
@@ -41,24 +36,45 @@ public class MainActivity extends AppCompatActivity {
         addCityToMenu("Paris");
         addCityToMenu("Monaco");
 
+        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(this, drawer, toolbar,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close);
+        //set menu icon
+        drawerToggle.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24);
+        drawerToggle.setDrawerIndicatorEnabled(false);
+        drawerToggle.setToolbarNavigationClickListener(view -> drawer.openDrawer(
+                GravityCompat.START));
 
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_locations, R.id.nav_settings)
-                .setOpenableLayout(drawer)
-                .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(navigationView, navController);
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment,
+                    new HomeFragment()).commit();
+        }
+
+        navigationView.setNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.nav_locations:
+                    getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment,
+                            new LocationsFragment()).commit();
+                    drawer.closeDrawers();
+                    break;
+                case R.id.nav_settings:
+                    getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment,
+                            new SettingsFragment()).commit();
+                    drawer.closeDrawers();
+                    break;
+                default:
+                    break;
+            }
+            return true;
+        });
     }
+
     private void addCityToMenu(String city) {
         menuItem.getSubMenu().add(Menu.NONE, R.id.nav_home, 1, city)
                 .setOnMenuItemClickListener(item -> loadCity(city));
     }
 
     public boolean loadCity(String city) {
-        Toast.makeText(getApplicationContext(), city, Toast.LENGTH_SHORT).show();
         Bundle bundle = new Bundle();
         bundle.putString("cityName", city);
         HomeFragment fragment = new HomeFragment();
@@ -68,19 +84,5 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
         drawer.closeDrawers();
         return true;
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
-                || super.onSupportNavigateUp();
     }
 }

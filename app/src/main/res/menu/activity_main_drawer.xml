@@ -11,8 +11,10 @@
     </item>
     <item
         android:id="@+id/nav_locations"
-        android:title="@string/menu_locations" />
+        android:title="@string/menu_locations"
+        android:checkable="false"/>
     <item
         android:id="@+id/nav_settings"
-        android:title="@string/menu_settings" />
+        android:title="@string/menu_settings"
+        android:checkable="false" />
 </menu>
